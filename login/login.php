@@ -1,3 +1,31 @@
+<?php
+session_start();
+// Koneksi ke database (Sesuaikan nama databasemu)
+$conn = mysqli_connect("localhost", "root", "", "db_toko_obat");
+
+if (isset($_POST['login'])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    // Ambil data user dan role dari database
+    $query = mysqli_query($conn, "SELECT * FROM tb_user WHERE username='$username' AND password='$password'");
+    $data = mysqli_fetch_assoc($query);
+
+    if (mysqli_num_rows($query) > 0) {
+        $_SESSION['role'] = $data['role']; // Sesuai kolom enum di image_a5c997.png
+
+        // Cek Role dan arahkan ke folder AdminLTE
+        if ($data['role'] == 'admin') {
+            header("Location: adminlte/admin/index.html");
+        } else {
+            header("Location: adminlte/user/index.html");
+        }
+        exit();
+    } else {
+        $error = "Username atau Password salah!";
+    }
+}
+?>
 <!doctype html>
 <html lang="en">
   <head>
@@ -51,9 +79,10 @@
                   <span class="ml-auto"><a href="#" class="forgot-pass">Forgot Password</a></span> 
                 </div>
 
-                <input type="submit" value="Log In" class="btn btn-block btn-primary">
+                <input type="submit" name="login" value="Log In" class="btn btn-block btn-primary">
 
               </form>
+              <?php if(isset($error)) { echo "<p style='color:red;'>$error</p>"; } ?>
             </div>
           </div>
         </div>
